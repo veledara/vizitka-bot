@@ -36,15 +36,12 @@ def run():
 
     @bot.message_handler(commands=["start"])
     def welcome(message):
-        cmd = f"SELECT user_id FROM user WHERE id = '{message.chat.id}'"
-        c.execute(cmd)
-        exist = c.fetchone()
-        if exist is None:
+        if not user_exist(message):
             bot.send_message(
                 message.chat.id,
                 "Привет! В этом боте ты сможешь сгенерировать свою визитную карточку.",
             )
-            cmd = f"INSERT INTO user VALUES('{message.chat.id}', '0', '{message.from_user.username}', 'default')"
+            cmd = f"INSERT INTO user (id, step, tg_username) VALUES('{message.chat.id}', '0', '{message.from_user.username}')"
             c.execute(cmd)
             conn.commit()
         bot.send_message(message.chat.id, "Добро пожаловать!", reply_markup=menu_markup)
@@ -52,10 +49,16 @@ def run():
 
     @bot.message_handler(content_types=["text"])
     def conversation(message):
+        if not user_exist(message):
+            bot.send_message(
+                message.chat.id,
+                "Вы не прошли регистрацию. Для регистрации напишите команду /start.",
+            )
+            return
         if check_step(message) == "1":
-            if message == "Создать визитку":
+            if message.text == "Создать визитку":
                 cmd = f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'"
-                c.execute(amount_of_user_cards)
+                c.execute(cmd)
                 amount_of_user_cards = c.fetchone()[0]
                 if amount_of_user_cards > 9:
                     bot.send_message(
@@ -65,7 +68,10 @@ def run():
                     )
                     insert_step(1, message)
                     return
-                cmd = f"INSERT INTO card (id, user_id, card_number) VALUES('{generate_id()}', '{message.chat.id}', '{amount_of_user_cards}')"
+                card_id = generate_id()
+                cmd = f"INSERT INTO card (id, user_id, card_number) VALUES('{card_id}', '{message.chat.id}', '{amount_of_user_cards}')"
+                c.execute(cmd)
+                cmd = f"UPDATE user SET current_card = '{card_id}' WHERE id = '{message.chat.id}'"
                 c.execute(cmd)
                 conn.commit()
                 bot.send_message(
@@ -74,9 +80,9 @@ def run():
                     reply_markup=theme_inline_markup,
                 )
                 insert_step(1.1, message)
-            elif message == "Баланс":
+            elif message.text == "Баланс":
                 insert_step(2, message)
-            elif message == "Помощь":
+            elif message.text == "Помощь":
                 insert_step(3, message)
             else:
                 bot.send_message(
@@ -99,16 +105,20 @@ def run():
         else:
             bot.send_message(
                 message.chat.id,
-                "Вы не прошли регистрацию. Для регистрации напишите команду /start.",
+                "Произошла неведомая ошибка.",
             )
 
     @bot.callback_query_handler(func=lambda call: True)
     def answer(call):
         if check_step(call.message) == "1.1":
             if call.data == "Светлая":
-                pass
+                cmd = f"UPDATE card SET theme = 'light' WHERE id = '{current_card_check(call.message)}'"
+                c.execute(cmd)
+                conn.commit()
             elif call.data == "Темная":
-                pass
+                cmd = f"UPDATE card SET theme = 'dark' WHERE id = '{current_card_check(call.message)}'"
+                c.execute(cmd)
+                conn.commit()
             else:
                 bot.send_message(call.message.chat.id, "Я вас не понимаю.")
 

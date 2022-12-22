@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "vizitka-bot"
+version = "0.1.0"
+description = ""
+authors = ["veledara <painriddlegaming@gmail.com>"]
+readme = "README.md"
+packages = [{include = "vizitka_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyTelegramBotAPI = "^4.8.0"
+Pillow = "^9.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = {version = "^22.10.0", allow-prereleases = true}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

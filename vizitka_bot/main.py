@@ -1,11 +1,11 @@
 import telebot
 import datetime
 from database import *
-
+from secret import TOKEN
 
 def run():
     # Создаем экземпляр бота
-    bot = telebot.TeleBot("5709805908:AAF2SliUczwMMu_eeEevm6X2ONfUpOHnbg4")
+    bot = telebot.TeleBot("TOKEN")
 
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     make_button = telebot.types.InlineKeyboardButton(text="Создать визитку")

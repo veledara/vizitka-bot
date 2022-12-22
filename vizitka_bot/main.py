@@ -36,7 +36,7 @@ def run():
 
     @bot.message_handler(commands=["start"])
     def welcome(message):
-        cmd = "SELECT user_id FROM user WHERE id = '{}'".format(message.chat.id)
+        cmd = f"SELECT user_id FROM user WHERE id = '{message.chat.id}'"
         c.execute(cmd)
         exist = c.fetchone()
         if exist is None:
@@ -44,9 +44,7 @@ def run():
                 message.chat.id,
                 "Привет! В этом боте ты сможешь сгенерировать свою визитную карточку.",
             )
-            cmd = "INSERT INTO user VALUES('{}', '0', '{}', 'default')".format(
-                message.chat.id, message.from_user.username
-            )
+            cmd = f"INSERT INTO user VALUES('{message.chat.id}', '0', '{message.from_user.username}', 'default')"
             c.execute(cmd)
             conn.commit()
         bot.send_message(message.chat.id, "Добро пожаловать!", reply_markup=menu_markup)
@@ -56,7 +54,7 @@ def run():
     def conversation(message):
         if check_step(message) == "1":
             if message == "Создать визитку":
-                cmd = f"SELECT COUNT(*) FROM card WHERE user_id = {message.chat.id}"
+                cmd = f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'"
                 c.execute(amount_of_user_cards)
                 amount_of_user_cards = c.fetchone()[0]
                 if amount_of_user_cards > 9:
@@ -66,11 +64,8 @@ def run():
                         reply_markup=menu_markup,
                     )
                     insert_step(1, message)
-                cmd = (
-                    "INSERT INTO card (id, user_id, card_number) VALUES({}, {})".format(
-                        generate_id(), message.chat.id, amount_of_user_cards
-                    )
-                )
+                    return
+                cmd = f"INSERT INTO card (id, user_id, card_number) VALUES('{generate_id()}', '{message.chat.id}', '{amount_of_user_cards}')"
                 c.execute(cmd)
                 conn.commit()
                 bot.send_message(

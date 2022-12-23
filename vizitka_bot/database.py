@@ -22,11 +22,13 @@ def insert_step(n, message):
     c.execute(cmd)
     conn.commit()
 
+
 def user_exist(message):
     cmd = f"SELECT id FROM user WHERE id = '{message.chat.id}'"
     c.execute(cmd)
     exist = c.fetchone()
     return False if exist == None else True
+    
 
 def current_card_check(message):
     cmd = f"SELECT current_card FROM user WHERE id = '{message.chat.id}'"
@@ -45,3 +47,4 @@ def clear_table(database_path: str, table_name: str):
 
 if __name__ == "__main__":
     clear_table("vizitka_bot.db", "card")
+    clear_table("vizitka_bot.db", "user")

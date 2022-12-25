@@ -124,12 +124,9 @@ def run():
             )
             insert_step(1.5, message)
         elif check_step(message) == "1.6":
-            bot.send_message(
-                message.chat.id, "Отправьте фотографию (желательно 4 на 3)."
-            )
-
+            pass
         elif check_step(message) == "1.7":
-            bot.send_message(message.chat.id, "Карточка готова.")
+            pass
         elif check_step(message) == "2":
             pass
         elif check_step(message) == "3":
@@ -178,10 +175,17 @@ def run():
             bot.send_message(
                 call.message.chat.id,
                 "Введите имя, которое хотите видеть на карте:",
-            )
+            ) 
             insert_step(1.2, call.message)
         elif check_step(call.message) == "1.5":
-            step = "1.6" if call.data == "Да, хочу" else "1.7"
+            if call.data == "Да, хочу":
+                step = 1.6
+                bot.send_message(
+                    call.message.chat.id, "Отправьте фотографию (желательно 4 на 3)."
+                )
+            else:
+                step = 1.7
+                bot.send_message(call.message.chat.id, "Карточка готова.")
             insert_step(step, call.message)
         else:
             bot.send_message(

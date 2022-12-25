@@ -1,7 +1,7 @@
 import sqlite3 as sql
 import uuid
 
-db = "vizitka_bot.db"  # имя бд (ОБЯЗАТЕЛЬНО БД ДОЛЖНА ЛЕЖАТЬ В ОДНОЙ ПАПКЕ С КОДОМ)
+db = r"vizitka_bot\databases\vizitka_bot.db"  # имя бд (ОБЯЗАТЕЛЬНО БД ДОЛЖНА ЛЕЖАТЬ В ОДНОЙ ПАПКЕ С КОДОМ)
 conn = sql.connect(db, check_same_thread=False)
 c = conn.cursor()
 
@@ -46,5 +46,5 @@ def clear_table(database_path: str, table_name: str):
 
 
 if __name__ == "__main__":
-    clear_table("vizitka_bot.db", "card")
-    clear_table("vizitka_bot.db", "user")
+    clear_table(r"vizitka_bot\databases\vizitka_bot.db", "card")
+    clear_table(r"vizitka_bot\databases\vizitka_bot.db", "user")

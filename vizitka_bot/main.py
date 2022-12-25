@@ -43,8 +43,9 @@ def run():
                 message.chat.id,
                 "Привет! В этом боте ты сможешь сгенерировать свою визитную карточку.",
             )
-            cmd = f"INSERT INTO user (id, step, tg_username) VALUES('{message.chat.id}', '0', '{message.from_user.username}')"
-            c.execute(cmd)
+            c.execute(
+                f"INSERT INTO user (id, step, tg_username) VALUES('{message.chat.id}', '0', '{message.from_user.username}')"
+            )
             conn.commit()
         bot.send_message(message.chat.id, "Добро пожаловать!", reply_markup=menu_markup)
         insert_step(1, message)
@@ -59,8 +60,7 @@ def run():
             return
         if check_step(message) == "1":
             if message.text == "Создать визитку":
-                cmd = f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'"
-                c.execute(cmd)
+                c.execute(f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'")
                 amount_of_user_cards = c.fetchone()[0]
                 if amount_of_user_cards > 9:
                     bot.send_message(
@@ -71,10 +71,8 @@ def run():
                     insert_step(1, message)
                     return
                 card_id = generate_id()
-                cmd = f"INSERT INTO card (id, user_id, card_number) VALUES('{card_id}', '{message.chat.id}', '{amount_of_user_cards}')"
-                c.execute(cmd)
-                cmd = f"UPDATE user SET current_card = '{card_id}' WHERE id = '{message.chat.id}'"
-                c.execute(cmd)
+                c.execute(f"INSERT INTO card (id, user_id, card_number) VALUES('{card_id}', '{message.chat.id}', '{amount_of_user_cards}')")
+                c.execute(f"UPDATE user SET current_card = '{card_id}' WHERE id = '{message.chat.id}'")
                 conn.commit()
                 bot.send_message(
                     message.chat.id,
@@ -93,9 +91,7 @@ def run():
                     reply_markup=menu_markup,
                 )
         elif check_step(message) == "1.2":
-            name_on_card = message.text
-            cmd = f"UPDATE card SET name = '{name_on_card}' WHERE id = '{current_card_check(message)}'"
-            c.execute(cmd)
+            c.execute(f"UPDATE card SET name = '{message.text}' WHERE id = '{current_card_check(message)}'")
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -103,9 +99,7 @@ def run():
             )
             insert_step(1.3, message)
         elif check_step(message) == "1.3":
-            phone_on_card = message.text
-            cmd = f"UPDATE card SET phone = '{phone_on_card}' WHERE id = '{current_card_check(message)}'"
-            c.execute(cmd)
+            c.execute(f"UPDATE card SET phone = '{message.text}' WHERE id = '{current_card_check(message)}'")
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -113,9 +107,7 @@ def run():
             )
             insert_step(1.4, message)
         elif check_step(message) == "1.4":
-            company_on_card = message.text
-            cmd = f"UPDATE card SET company = '{company_on_card}' WHERE id = '{current_card_check(message)}'"
-            c.execute(cmd)
+            c.execute(f"UPDATE card SET company = '{message.text}' WHERE id = '{current_card_check(message)}'")
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -123,10 +115,11 @@ def run():
                 reply_markup=choice_inline_markup,
             )
             insert_step(1.5, message)
-        elif check_step(message) == "1.6":
-            pass
         elif check_step(message) == "1.7":
-            pass
+            bot.send_message(
+                message.chat.id,
+                "Вы на шаге 1.7 - карта готова",
+            )
         elif check_step(message) == "2":
             pass
         elif check_step(message) == "3":
@@ -135,6 +128,11 @@ def run():
             if check_step(message) == "1.1":
                 bot.send_message(
                     message.chat.id, "Выберите из двух вариантов: темная/светлая."
+                )
+            elif check_step(message) == "1.6":
+                bot.send_message(
+                    message.chat.id,
+                    "Вы должны отправить фотографию/изображение, желательно формата 3:4.",
                 )
             else:
                 bot.send_message(message.chat.id, "Произошла необработнная ошибка.")
@@ -147,12 +145,12 @@ def run():
                 "Вы не прошли регистрацию. Для регистрации напишите команду /start.",
             )
             return
-        if check_step(message) == 1.6:
-            file_id = message.photo[-1].file_id
-            file_info = bot.get_file(file_id)
+        if check_step(message) == "1.6":
+            image_id = message.photo[-1].file_id
+            file_info = bot.get_file(image_id)
             photo = bot.download_file(file_info.file_path)
             c.execute(
-                f"UPDATE card SET file_id = '{file_id}', file_data = '{photo}' WHERE id = '{current_card_check(message)}'"
+                f"UPDATE card SET file_id = '{image_id}', file_data = '{photo}' WHERE id = '{current_card_check(message)}'"
             )
             conn.commit()
             conn.close()
@@ -169,28 +167,26 @@ def run():
             return
         if check_step(call.message) == "1.1":
             theme = "light" if call.data == "Светлая" else "dark"
-            cmd = f"UPDATE card SET theme = '{theme}' WHERE id = '{current_card_check(call.message)}'"
-            c.execute(cmd)
+            c.execute(f"UPDATE card SET theme = '{theme}' WHERE id = '{current_card_check(call.message)}'")
             conn.commit()
             bot.send_message(
                 call.message.chat.id,
                 "Введите имя, которое хотите видеть на карте:",
-            ) 
+            )
             insert_step(1.2, call.message)
         elif check_step(call.message) == "1.5":
             if call.data == "Да, хочу":
                 step = 1.6
-                bot.send_message(
-                    call.message.chat.id, "Отправьте фотографию (желательно 4 на 3)."
-                )
+                message = "Отправьте фотографию (желательно 4 на 3)."
             else:
                 step = 1.7
-                bot.send_message(call.message.chat.id, "Карточка готова.")
+                message = "Карточка готова."
+            bot.send_message(call.message.chat.id, message)
             insert_step(step, call.message)
         else:
             bot.send_message(
                 call.message.chat.id,
-                "Произошла неизвестная ошибка.",
+                "Вы уже сделали свой выбор.",
             )
 
     try:

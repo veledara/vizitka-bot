@@ -188,7 +188,7 @@ poetry.toml
 .ionide
 
 secret.py
-
 modified_visit_card.png
+.db
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode

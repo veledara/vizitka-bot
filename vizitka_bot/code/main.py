@@ -1,13 +1,14 @@
 import telebot
 import datetime
 from database import *
+from draw_info_on_image import *
 from secret import TOKEN
 
 
 def run():
     # Создаем экземпляр бота
     bot = telebot.TeleBot(TOKEN)
-
+    
     menu_markup = telebot.types.ReplyKeyboardMarkup(
         resize_keyboard=True, one_time_keyboard=True
     )
@@ -166,7 +167,11 @@ def run():
                 (image_id, photo, current_card_check(message)),
             )
             conn.commit()
-            conn.close()
+            bot.send_message(
+                message.chat.id,
+                "Супер! Карточка готова!",
+            )
+            generator(message)
         else:
             bot.send_message(message.chat.id, "Зачем мне это изображение?")
 
@@ -196,6 +201,7 @@ def run():
             else:
                 step = 1.7
                 message = "Карточка готова."
+                generator(message)
             bot.send_message(call.message.chat.id, message)
             insert_step(step, call.message)
         else:
@@ -203,6 +209,12 @@ def run():
                 call.message.chat.id,
                 "Вы уже сделали свой выбор.",
             )
+
+    def generator(message):
+        select_stmt = f"SELECT * FROM card WHERE id = '{current_card_check(message)}'"
+        c.execute(select_stmt)
+        image_bytes = visit_card_maker(c.fetchone()[1], c.fetchone()[2], c.fetchone()[3], c.fetchone()[4], c.fetchone()[8])
+        bot.send_photo(message.chat.id, image_bytes)
 
     # try:
     bot.polling(none_stop=True)

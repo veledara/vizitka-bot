@@ -1,7 +1,8 @@
+import io
 from PIL import Image, ImageDraw, ImageFont
 
-def resizer(card, image_path):
-    image = Image.open(image_path)
+def resizer(card, file_data):
+    image = Image.open(io.BytesIO(file_data))
     width, height = image.size
     new_width = 192
     new_height = 256
@@ -10,7 +11,7 @@ def resizer(card, image_path):
     card.paste(resized_image, (83, 192))
     return card
 
-def visit_card_maker(card_type, card_name, card_phone, card_company, card_image_path = None):
+def visit_card_maker(card_type, card_name, card_phone, card_company, file_data):
     color = ()
     if card_type == 'dark':
         image = Image.open(r'vizitka_bot\content\visit_card_dark.png')
@@ -29,12 +30,15 @@ def visit_card_maker(card_type, card_name, card_phone, card_company, card_image_
     draw.text((600 + 10, 250 - font.size - 10), card_phone, font=font, fill=color)
     draw.text((600 + 10, 350 - font.size - 10), card_company, font=font, fill=color)
 
-    if card_image_path == None:
+    if file_data == None:
         pass
     else:
-        image = resizer(image, card_image_path)
+        image = resizer(image, file_data)
     image.save('vizitka_bot\content\modified_visit_card.png')
-    return image
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, "JPEG")
+    image_bytes.seek(0)
+    return image_bytes
 
 if __name__ == "__main__":
-    image = visit_card_maker('light', 'Paul Johnson', '89202145402', 'Razrabot', card_image_path = r'C:\Users\veledara\Pictures\leo.png')
+    image = visit_card_maker('light', 'Paul Johnson', '89202145402', 'Razrabot', file_data = r'C:\Users\veledara\Pictures\leo.png') # wrong test

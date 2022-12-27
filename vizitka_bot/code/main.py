@@ -60,7 +60,9 @@ def run():
             return
         if check_step(message) == "1":
             if message.text == "Создать визитку":
-                c.execute(f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'")
+                c.execute(
+                    f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'"
+                )
                 amount_of_user_cards = c.fetchone()[0]
                 if amount_of_user_cards > 9:
                     bot.send_message(
@@ -71,8 +73,12 @@ def run():
                     insert_step(1, message)
                     return
                 card_id = generate_id()
-                c.execute(f"INSERT INTO card (id, user_id, card_number) VALUES('{card_id}', '{message.chat.id}', '{amount_of_user_cards}')")
-                c.execute(f"UPDATE user SET current_card = '{card_id}' WHERE id = '{message.chat.id}'")
+                c.execute(
+                    f"INSERT INTO card (id, user_id, card_number) VALUES('{card_id}', '{message.chat.id}', '{amount_of_user_cards}')"
+                )
+                c.execute(
+                    f"UPDATE user SET current_card = '{card_id}' WHERE id = '{message.chat.id}'"
+                )
                 conn.commit()
                 bot.send_message(
                     message.chat.id,
@@ -91,7 +97,9 @@ def run():
                     reply_markup=menu_markup,
                 )
         elif check_step(message) == "1.2":
-            c.execute(f"UPDATE card SET name = '{message.text}' WHERE id = '{current_card_check(message)}'")
+            c.execute(
+                f"UPDATE card SET name = '{message.text}' WHERE id = '{current_card_check(message)}'"
+            )
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -99,7 +107,9 @@ def run():
             )
             insert_step(1.3, message)
         elif check_step(message) == "1.3":
-            c.execute(f"UPDATE card SET phone = '{message.text}' WHERE id = '{current_card_check(message)}'")
+            c.execute(
+                f"UPDATE card SET phone = '{message.text}' WHERE id = '{current_card_check(message)}'"
+            )
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -107,7 +117,9 @@ def run():
             )
             insert_step(1.4, message)
         elif check_step(message) == "1.4":
-            c.execute(f"UPDATE card SET company = '{message.text}' WHERE id = '{current_card_check(message)}'")
+            c.execute(
+                f"UPDATE card SET company = '{message.text}' WHERE id = '{current_card_check(message)}'"
+            )
             conn.commit()
             bot.send_message(
                 message.chat.id,
@@ -150,7 +162,8 @@ def run():
             file_info = bot.get_file(image_id)
             photo = bot.download_file(file_info.file_path)
             c.execute(
-                f"UPDATE card SET file_id = '{image_id}', file_data = '{photo}' WHERE id = '{current_card_check(message)}'"
+                "UPDATE card SET file_id = ?, file_data = ? WHERE id = ?",
+                (image_id, photo, current_card_check(message)),
             )
             conn.commit()
             conn.close()
@@ -167,7 +180,9 @@ def run():
             return
         if check_step(call.message) == "1.1":
             theme = "light" if call.data == "Светлая" else "dark"
-            c.execute(f"UPDATE card SET theme = '{theme}' WHERE id = '{current_card_check(call.message)}'")
+            c.execute(
+                f"UPDATE card SET theme = '{theme}' WHERE id = '{current_card_check(call.message)}'"
+            )
             conn.commit()
             bot.send_message(
                 call.message.chat.id,
@@ -189,11 +204,11 @@ def run():
                 "Вы уже сделали свой выбор.",
             )
 
-    try:
-        bot.polling(none_stop=True)
-    except Exception as e:
-        telebot.logger.error(e)
-        print("Error: " + str(datetime.datetime.now()))
+    # try:
+    bot.polling(none_stop=True)
+    # except Exception as e:
+    #    telebot.logger.error(e)
+    #   print("Error: " + str(datetime.datetime.now()))
 
 
 if __name__ == "__main__":

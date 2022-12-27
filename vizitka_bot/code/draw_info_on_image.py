@@ -33,7 +33,7 @@ def visit_card_maker(card_type, card_name, card_phone, card_company, card_image_
         pass
     else:
         image = resizer(image, card_image_path)
-    image.save('vizitka_bot\modified_visit_card.png')
+    image.save('vizitka_bot\content\modified_visit_card.png')
     return image
 
 if __name__ == "__main__":

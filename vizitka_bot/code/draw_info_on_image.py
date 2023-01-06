@@ -36,7 +36,7 @@ def visit_card_maker(card_type, card_name, card_phone, card_company, file_data):
         image = resizer(image, file_data)
     image.save('vizitka_bot\content\modified_visit_card.png')
     image_bytes = io.BytesIO()
-    image.save(image_bytes, "JPEG")
+    image.save(image_bytes, "PNG")
     image_bytes.seek(0)
     return image_bytes
 

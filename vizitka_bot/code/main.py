@@ -128,11 +128,6 @@ def run():
                 reply_markup=choice_inline_markup,
             )
             insert_step(1.5, message)
-        elif check_step(message) == "1.7":
-            bot.send_message(
-                message.chat.id,
-                "Вы на шаге 1.7 - карта готова",
-            )
         elif check_step(message) == "2":
             pass
         elif check_step(message) == "3":
@@ -199,9 +194,9 @@ def run():
                 step = 1.6
                 message = "Отправьте фотографию (желательно 4 на 3)."
             else:
-                step = 1.7
+                step = 1
                 message = "Карточка готова."
-                generator(message)
+                generator(call.message)
             bot.send_message(call.message.chat.id, message)
             insert_step(step, call.message)
         else:
@@ -213,7 +208,9 @@ def run():
     def generator(message):
         select_stmt = f"SELECT * FROM card WHERE id = '{current_card_check(message)}'"
         c.execute(select_stmt)
-        image_bytes = visit_card_maker(c.fetchone()[1], c.fetchone()[2], c.fetchone()[3], c.fetchone()[4], c.fetchone()[8])
+        cort = c.fetchall()
+        file_data = cort[0][8] if cort[0][8] != None else None
+        image_bytes = visit_card_maker(cort[0][1], cort[0][2], cort[0][3], cort[0][4], file_data)
         bot.send_photo(message.chat.id, image_bytes)
 
     # try:

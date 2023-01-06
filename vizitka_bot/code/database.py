@@ -11,28 +11,24 @@ def generate_id():
 
 
 def check_step(message):
-    cmd = f"SELECT step FROM user WHERE id = '{message.chat.id}'"
-    c.execute(cmd)
+    c.execute(f"SELECT step FROM user WHERE id = '{message.chat.id}'")
     result = c.fetchall()[0][0]
     return result
 
 
 def insert_step(n, message):
-    cmd = f"UPDATE user SET step = '{n}' WHERE id = '{message.chat.id}'"
-    c.execute(cmd)
+    c.execute(f"UPDATE user SET step = '{n}' WHERE id = '{message.chat.id}'")
     conn.commit()
 
 
 def user_exist(message):
-    cmd = f"SELECT id FROM user WHERE id = '{message.chat.id}'"
-    c.execute(cmd)
+    c.execute(f"SELECT id FROM user WHERE id = '{message.chat.id}'")
     exist = c.fetchone()
     return False if exist == None else True
     
 
 def current_card_check(message):
-    cmd = f"SELECT current_card FROM user WHERE id = '{message.chat.id}'"
-    c.execute(cmd)
+    c.execute(f"SELECT current_card FROM user WHERE id = '{message.chat.id}'")
     result = c.fetchall()[0][0]
     return result
 

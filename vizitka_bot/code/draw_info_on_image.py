@@ -12,7 +12,6 @@ def resizer(card, file_data):
     return card
 
 def visit_card_maker(card_type, card_name, card_phone, card_company, file_data):
-    color = ()
     if card_type == 'dark':
         image = Image.open(r'vizitka_bot\content\visit_card_dark.png')
         color = (255, 255, 255)
@@ -23,16 +22,13 @@ def visit_card_maker(card_type, card_name, card_phone, card_company, file_data):
         print("an exception occurred")
 
     draw = ImageDraw.Draw(image)
-    # Choose a font and font size
     font = ImageFont.truetype('arial.ttf', 32)
 
     draw.text((600 + 10, 150 - font.size - 10), card_name, font=font, fill=color)
     draw.text((600 + 10, 250 - font.size - 10), card_phone, font=font, fill=color)
     draw.text((600 + 10, 350 - font.size - 10), card_company, font=font, fill=color)
 
-    if file_data == None:
-        pass
-    else:
+    if file_data:
         image = resizer(image, file_data)
     image.save('vizitka_bot\content\modified_visit_card.png')
     image_bytes = io.BytesIO()

@@ -8,7 +8,7 @@ from secret import TOKEN
 def run():
     # Создаем экземпляр бота
     bot = telebot.TeleBot(TOKEN)
-    
+
     menu_markup = telebot.types.ReplyKeyboardMarkup(
         resize_keyboard=True, one_time_keyboard=True
     )
@@ -65,13 +65,12 @@ def run():
                     f"SELECT COUNT(*) FROM card WHERE user_id = '{message.chat.id}'"
                 )
                 amount_of_user_cards = c.fetchone()[0]
-                if amount_of_user_cards > 9:
+                if amount_of_user_cards >= 3:
                     bot.send_message(
                         message.chat.id,
-                        "Создать визитку невозможно, вы уже сделали 10.",
+                        "Создать визитку невозможно, вы уже сделали 3.",
                         reply_markup=menu_markup,
                     )
-                    insert_step(1, message)
                     return
                 card_id = generate_id()
                 c.execute(
@@ -88,9 +87,15 @@ def run():
                 )
                 insert_step(1.1, message)
             elif message.text == "Баланс":
-                insert_step(2, message)
+                bot.send_message(
+                    message.chat.id, "Функция пока не доделана.",
+                    reply_markup=menu_markup,
+                )
             elif message.text == "Помощь":
-                insert_step(3, message)
+                bot.send_message(
+                    message.chat.id, "Функция пока не доделана.",
+                    reply_markup=menu_markup,
+                )
             else:
                 bot.send_message(
                     message.chat.id,
@@ -167,6 +172,7 @@ def run():
                 "Супер! Карточка готова!",
             )
             generator(message)
+            insert_step(1, message)
         else:
             bot.send_message(message.chat.id, "Зачем мне это изображение?")
 
@@ -210,7 +216,9 @@ def run():
         c.execute(select_stmt)
         cort = c.fetchall()
         file_data = cort[0][8] if cort[0][8] != None else None
-        image_bytes = visit_card_maker(cort[0][1], cort[0][2], cort[0][3], cort[0][4], file_data)
+        image_bytes = visit_card_maker(
+            cort[0][1], cort[0][2], cort[0][3], cort[0][4], file_data
+        )
         bot.send_photo(message.chat.id, image_bytes)
 
     # try:
